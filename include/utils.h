@@ -40,8 +40,11 @@ namespace utils
                    bool scaleUp,
                    int stride);
 
-    void scaleCoords(const cv::Size& imageShape, cv::Rect& box, const cv::Size& imageOriginalShape);
+    void scaleCoords(const cv::Size &imageShape, cv::Rect &box, const cv::Size &imageOriginalShape);
 
     template <typename T>
-    T clip(const T& n, const T& lower, const T& upper);
+    T clip(const T &n, const T &lower, const T &upper);
+    // Считает количество не пустых строк в файле с классами
+    std::vector<std::string> getClasses(const std::string &filename);
+
 }

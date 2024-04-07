@@ -27,9 +27,15 @@ if (WIN32)
 endif(WIN32)
 
 if (UNIX)
-    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -msse2 -O3 -ffast-math -march=native")
     target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so"
         ${OpenCV_LIBS}
+        # yolo_ort Qt5::Core
+        # yolo_ort Qt5::Widgets
     )
 endif(UNIX)
 
+if (BUILDSIM)
+    add_executable(simplifier src/simplifier.cpp)
+    target_include_directories(simplifier PRIVATE "${ONNXRUNTIME_DIR}/include/onnxruntime")
+    target_link_libraries(simplifier "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so")
+endif(BUILDSIM)

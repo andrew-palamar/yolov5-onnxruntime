@@ -7,25 +7,24 @@
 #include "detector.h"
 #include "utils.h"
 
-#define DEBUG
-
-/* void Delay(int time) // time*1000为秒数
+void Delay(int time) // time*1000为秒数
 {
     clock_t now = clock();
 
     while (clock() - now < time)
         ;
-} */
+}
 
 int main(int argc, char *argv[]) {
     const float confThreshold = 0.3f;
     const float iouThreshold = 0.4f;
 
     cmdline::parser cmd;
-    cmd.add<std::string>("model_path", 'm', "Path to onnx model.", false, "models/yolov5m.onnx");
-    cmd.add<std::string>("image", 'i', "Image source to be detected.", false, "images/bus.jpg");
+    cmd.add<std::string>("model_path", 'm', "Path to onnx model.", false, "/home/ap/work/satel/mpp/onnxruntime/yolov5-onnxruntime/models/yolov5m_simplified.onnx");
+    // cmd.add<std::string>("model_path", 'm', "Path to onnx model.", true, "yolov5.onnx");
+    cmd.add<std::string>("image", 'i', "Image source to be detected.", false, "/home/ap/work/satel/mpp/onnxruntime/yolov5-onnxruntime/images/frame.bmp");
     cmd.add<std::string>("v4l2", 'v', "video dev node to be detected.", false);
-    cmd.add<std::string>("class_names", 'c', "Path to class names file.", false, "models/coco.names");
+    cmd.add<std::string>("class_names", 'c', "Path to class names file.", false, "/home/ap/work/satel/mpp/onnxruntime/yolov5-onnxruntime/models/coco.names");
     cmd.add("gpu", '\0', "Inference on cuda device.");
     cmd.add("show", '\0', "Visualize single image detection");
 
@@ -35,7 +34,7 @@ int main(int argc, char *argv[]) {
     bool visualize = cmd.exist("show");
     const std::string classNamesPath = cmd.get<std::string>("class_names");
     const std::vector<std::string> classNames = utils::loadNames(classNamesPath);
-    std::string imagePath = cmd.get<std::string>("image");
+    const std::string imagePath = cmd.get<std::string>("image");
     const std::string videoPath = cmd.get<std::string>("v4l2");
     const std::string modelPath = cmd.get<std::string>("model_path");
 
@@ -48,11 +47,6 @@ int main(int argc, char *argv[]) {
         std::cerr << "At least give one source! jpg or /dev/videox" << std::endl;
         return -1;
     }
-    else if (!videoPath.empty())
-    {
-        imagePath = "";
-    }
-    
 
     YOLODetector detector{nullptr};
     cv::Mat image;
@@ -69,10 +63,10 @@ int main(int argc, char *argv[]) {
     // Single image
     if (!imagePath.empty()) {
         image = cv::imread(imagePath);
-        // detector.detect(image, confThreshold, iouThreshold);
-        result = detector.detect(image, confThreshold, iouThreshold);
+        detector.detect(image, confThreshold, iouThreshold);
+        // result = detector.detect(image, confThreshold, iouThreshold);
         // Print boxes
-        std::vector<utils::Box> boxes = utils::getBoxes(result, classNames);
+        /* std::vector<utils::Box> boxes = utils::getBoxes(result, classNames);
 
         for (std::vector<utils::Box>::size_type i = 0; i < boxes.size(); i++) {
             auto &boxe = boxes[i];
@@ -84,8 +78,9 @@ int main(int argc, char *argv[]) {
             box["height"] = boxe.height;
             box["confidence"] = boxe.confidence;
             box["class_index"] = boxe.class_index;
+            // box["object"] = boxe.object;
 
-            #ifdef DEBUG
+            // #ifdef DEBUG
             std::cout << "Box " << (i + 1) << ":" << std::endl;
             std::cout << "\tx = " << box["x"] << std::endl;
             std::cout << "\ty = " << box["y"] << std::endl;
@@ -93,9 +88,9 @@ int main(int argc, char *argv[]) {
             std::cout << "\theight = " << box["height"] << std::endl;
             std::cout << "\tconfidence = " << box["confidence"] << std::endl;
             std::cout << "\tclass_index = " << box["class_index"] << std::endl;
-            std::cout << "\tobject = " << box["object"] << std::endl;
-            #endif
-        }
+            // std::cout << "\tobject = " << box["object"] << std::endl;
+            // #endif
+        } */
 
         // Show image with boxes
         if (visualize) {
@@ -122,17 +117,15 @@ int main(int argc, char *argv[]) {
 
             auto start_time = std::chrono::high_resolution_clock::now();
             result = detector.detect(frame, confThreshold, iouThreshold);
-            utils::visualizeDetection(frame, result, classNames);
+            // utils::visualizeDetection(frame, result, classNames);
             auto end_time = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
             std::cout << "Execution time: " << duration.count() << " ms." << std::endl;
 
             cv::imshow("result", frame);
-            // Exit on ESC
-            char k = cv::waitKey(10);
-            if( k == 27 ) break;
+            cv::waitKey(10);
+            //	break;
         }
     }
     return 0;
 }
-
