@@ -2,7 +2,8 @@
 #include <codecvt>
 #include <fstream>
 #include <opencv2/opencv.hpp>
-
+#include <vector>
+#include <string>
 
 struct Detection
 {
@@ -13,15 +14,27 @@ struct Detection
 
 namespace utils
 {
-    size_t vectorProduct(const std::vector<int64_t>& vector);
-    std::wstring charToWstring(const char* str);
-    std::vector<std::string> loadNames(const std::string& path);
-    void visualizeDetection(cv::Mat& image, std::vector<Detection>& detections,
-                            const std::vector<std::string>& classNames);
+    struct Box
+    {
+        std::int32_t x = 0;
+        std::int32_t y = 0;
+        std::int32_t width = 0;
+        std::int32_t height = 0;
+        double confidence = 0.0;
+        std::int32_t class_index = 0;
+        std::string object = "";
+    };
 
-    void letterbox(const cv::Mat& image, cv::Mat& outImage,
-                   const cv::Size& newShape,
-                   const cv::Scalar& color,
+    size_t vectorProduct(const std::vector<int64_t> &vector);
+    std::wstring charToWstring(const char *str);
+    std::vector<std::string> loadNames(const std::string &path);
+    void visualizeDetection(cv::Mat &image, std::vector<Detection> &detections,
+                            const std::vector<std::string> &classNames);
+    std::vector<utils::Box> getBoxes(std::vector<Detection> &detections,
+                                     const std::vector<std::string> &classNames);
+    void letterbox(const cv::Mat &image, cv::Mat &outImage,
+                   const cv::Size &newShape,
+                   const cv::Scalar &color,
                    bool auto_,
                    bool scaleFill,
                    bool scaleUp,

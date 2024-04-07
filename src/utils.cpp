@@ -1,4 +1,6 @@
 #include "utils.h"
+#include <iostream>
+//#include <fstream>
 
 
 size_t utils::vectorProduct(const std::vector<int64_t>& vector)
@@ -72,9 +74,33 @@ void utils::visualizeDetection(cv::Mat& image, std::vector<Detection>& detection
     }
 }
 
-void utils::letterbox(const cv::Mat& image, cv::Mat& outImage,
-                      const cv::Size& newShape = cv::Size(640, 640),
-                      const cv::Scalar& color = cv::Scalar(114, 114, 114),
+std::vector<utils::Box> utils::getBoxes(std::vector<Detection> &detections,
+                                 const std::vector<std::string> &classNames) {
+    std::vector<utils::Box> dst;
+
+    int boxNum = 0;
+    for (const Detection &detection : detections) {
+        boxNum++;
+        int x = detection.box.x;
+        int y = detection.box.y;
+        int class_index = detection.classId;
+
+        Box yolo_box;
+        yolo_box.x = x;
+        yolo_box.y = y;
+        yolo_box.width = detection.box.width;
+        yolo_box.height = detection.box.height;
+        yolo_box.confidence = detection.conf;
+        yolo_box.class_index = class_index;
+        yolo_box.object = classNames[class_index];
+        dst.push_back(yolo_box);
+    }
+    return dst;
+}
+
+void utils::letterbox(const cv::Mat &image, cv::Mat &outImage,
+                      const cv::Size &newShape = cv::Size(640, 640),
+                      const cv::Scalar &color = cv::Scalar(114, 114, 114),
                       bool auto_ = true,
                       bool scaleFill = false,
                       bool scaleUp = true,
@@ -86,7 +112,8 @@ void utils::letterbox(const cv::Mat& image, cv::Mat& outImage,
     if (!scaleUp)
         r = std::min(r, 1.0f);
 
-    float ratio[2] {r, r};
+    // Unused variable
+    // float ratio[2] {r, r};
     int newUnpad[2] {(int)std::round((float)shape.width * r),
                      (int)std::round((float)shape.height * r)};
 
@@ -104,8 +131,8 @@ void utils::letterbox(const cv::Mat& image, cv::Mat& outImage,
         dh = 0.0f;
         newUnpad[0] = newShape.width;
         newUnpad[1] = newShape.height;
-        ratio[0] = (float)newShape.width / (float)shape.width;
-        ratio[1] = (float)newShape.height / (float)shape.height;
+        // ratio[0] = (float)newShape.width / (float)shape.width;
+        // ratio[1] = (float)newShape.height / (float)shape.height;
     }
 
     dw /= 2.0f;

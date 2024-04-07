@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(yolo_ort)
 
 option(ONNXRUNTIME_DIR "Path to built ONNX Runtime directory." STRING)
+set (ONNXRUNTIME_DIR "/usr/local")
 message(STATUS "ONNXRUNTIME_DIR: ${ONNXRUNTIME_DIR}")
 
 find_package(OpenCV REQUIRED)
@@ -26,10 +27,9 @@ if (WIN32)
 endif(WIN32)
 
 if (UNIX)
+    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -msse2 -O3 -ffast-math -march=native")
     target_link_libraries(yolo_ort "${ONNXRUNTIME_DIR}/lib/libonnxruntime.so"
         ${OpenCV_LIBS}
-        # yolo_ort Qt5::Core
-        # yolo_ort Qt5::Widgets
     )
 endif(UNIX)
 
